@@ -1,0 +1,6 @@
+Put action music here.
+
+Shooting. Keep the midrange clear for the alarm.
+
+Then add an entry to TRACKS in js/music.js and list the
+key in the 'action' playlist. See ../README.txt for the format.

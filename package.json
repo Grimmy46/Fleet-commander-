@@ -1,0 +1,60 @@
+{
+  "name": "hormuz-fleet-command",
+  "version": "0.2.0",
+  "description": "Hormuz - Fleet Command",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "build": "electron-builder --win --x64",
+    "build-portable": "electron-builder --win portable --x64",
+    "build-folder": "electron-builder --win dir --x64"
+  },
+  "devDependencies": {
+    "electron": "^28.1.0",
+    "electron-builder": "^24.9.1"
+  },
+  "build": {
+    "appId": "com.hormuz.fleetcommand",
+    "productName": "Hormuz Fleet Command",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "main.js",
+      "game.html",
+      "js/**/*",
+      "assets/**/*",
+      "package.json"
+    ],
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "artifactName": "HormuzFleetCommand-Setup.exe",
+      "signAndEditExecutable": false,
+      "forceCodeSigning": false
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "Hormuz Fleet Command",
+      "deleteAppDataOnUninstall": false,
+      "runAfterFinish": true,
+      "differentialPackage": false
+    },
+    "portable": {
+      "artifactName": "HormuzFleetCommand.exe"
+    },
+    "compression": "normal",
+    "npmRebuild": false
+  },
+  "author": "Fleet Command",
+  "license": "MIT"
+}

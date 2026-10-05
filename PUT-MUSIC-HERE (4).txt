@@ -1,0 +1,6 @@
+Put tension music here.
+
+Contacts held, threat building. Low and unresolved.
+
+Then add an entry to TRACKS in js/music.js and list the
+key in the 'tension' playlist. See ../README.txt for the format.

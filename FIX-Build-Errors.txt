@@ -1,0 +1,80 @@
+================================================================
+  BUILD ERROR:  "Cannot create symbolic link"
+================================================================
+
+  WHAT HAPPENED
+  --------------------------------------------------------------
+  electron-builder downloads a code-signing toolkit before
+  packaging. That archive contains macOS symbolic links, and
+  Windows refuses to extract symlinks unless the process has
+  elevated privileges.
+
+  Nothing is wrong with the game. Nothing is wrong with your
+  Node install. You do not need code signing at all - it only
+  matters for publishing signed commercial software.
+
+
+  THIS IS ALREADY FIXED
+  --------------------------------------------------------------
+  The updated "Build Installer.bat" sets
+
+      CSC_IDENTITY_AUTO_DISCOVERY=false
+
+  before building, and package.json now sets
+
+      "signAndEditExecutable": false
+
+  Together these skip the signing toolkit entirely, so the
+  download that failed never happens.
+
+  Just run "Build Installer.bat" again.
+
+
+  IF IT STILL FAILS
+  --------------------------------------------------------------
+  The script now falls back automatically:
+
+      1. NSIS installer      (full wizard - preferred)
+      2. Portable .exe       (single file, no install)
+      3. Unpacked folder     (always works)
+
+  You will get one of the three.
+
+
+  OPTION: TURN ON DEVELOPER MODE
+  --------------------------------------------------------------
+  This permanently allows symlink creation without admin and
+  fixes this class of error for every Node tool, not just this
+  one.
+
+      Settings  >  System  >  For developers
+      Developer Mode  =  ON
+
+  Reboot is not required. Then rebuild.
+
+
+  OPTION: RUN AS ADMINISTRATOR
+  --------------------------------------------------------------
+  Right-click "Build Installer.bat" > Run as administrator.
+  Elevated processes are allowed to create symlinks.
+
+
+  YOU DO NOT NEED TO BUILD AT ALL
+  --------------------------------------------------------------
+  "Play Hormuz.bat" runs the real game in a real desktop
+  window with no build step. The installer is only for
+  convenience - a Start Menu entry and a desktop shortcut.
+
+  If you just want to play, use Play Hormuz.bat and ignore
+  all of this.
+
+
+  WHAT YOU GIVE UP BY SKIPPING SIGNING
+  --------------------------------------------------------------
+  The executable keeps a generic icon and shows "Electron"
+  in Task Manager instead of the app name. Windows SmartScreen
+  will warn on first run - click "More info" then "Run anyway".
+
+  That is all. The game itself is identical.
+
+================================================================

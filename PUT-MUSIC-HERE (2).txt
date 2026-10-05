@@ -1,0 +1,6 @@
+Put menu music here.
+
+Main menu, chart, briefing. Something with a theme.
+
+Then add an entry to TRACKS in js/music.js and list the
+key in the 'menu' playlist. See ../README.txt for the format.

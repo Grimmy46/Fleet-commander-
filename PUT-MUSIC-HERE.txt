@@ -1,0 +1,6 @@
+Put sailing music here.
+
+Under way, nothing detected. Long and sparse.
+
+Then add an entry to TRACKS in js/music.js and list the
+key in the 'sailing' playlist. See ../README.txt for the format.

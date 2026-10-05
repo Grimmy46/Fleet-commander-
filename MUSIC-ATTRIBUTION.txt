@@ -1,0 +1,77 @@
+================================================================
+  MUSIC ATTRIBUTION
+================================================================
+
+  This game uses music licensed under Creative Commons.
+  CC BY 4.0 requires attribution wherever the work is used,
+  so the credit appears IN GAME as well as in this file.
+
+  ----------------------------------------------------------------
+
+  TRACK      Legionnaire
+  COMPOSER   Scott Buckley
+  LICENCE    Creative Commons Attribution 4.0 International
+             (CC BY 4.0)
+  LICENCE    https://creativecommons.org/licenses/by/4.0/
+  SOURCE     https://youtube.com/user/musicbyscottb
+
+  ----------------------------------------------------------------
+
+  WHAT CC BY 4.0 ALLOWS
+
+    You may use, share, adapt and build on this work, including
+    commercially, provided you give appropriate credit, link to
+    the licence, and indicate if changes were made.
+
+    You may NOT imply the composer endorses you or your work.
+
+  WHERE THE CREDIT APPEARS IN GAME
+
+    Main menu   ->  CREDITS
+    Settings    ->  CREDITS
+    Menu screen ->  a NOW PLAYING readout in the lower right
+                    showing title, composer and licence
+
+  ----------------------------------------------------------------
+
+  ADDING MORE TRACKS
+
+  1. Drop the file in  assets/music/
+  2. Open  js/music.js  and add an entry to TRACKS:
+
+       mytrack: {
+         file: 'assets/music/mytrack.mp3',
+         title: 'Track Name',
+         composer: 'Composer Name',
+         licence: 'CC BY 4.0',
+         licenceUrl: 'https://creativecommons.org/licenses/by/4.0/',
+         source: 'https://...',
+         loop: true,
+         gain: 0.85          // per-track level trim
+       }
+
+  3. Assign it to a screen in SCREEN_MUSIC:
+
+       menu:     'mytrack',
+       tactical: 'somethingQuieter',
+
+  Missing files fail silently - the game will not crash if a
+  track is absent, and a failed track is automatically left
+  out of the credits screen.
+
+  ----------------------------------------------------------------
+
+  SOURCES FOR PUBLIC DOMAIN MILITARY MUSIC
+
+    US Marine Band     marineband.marines.mil/Audio-Resources/
+    US Navy Band       navyband.navy.mil
+    Musopen            musopen.org/music/performer/us-navy-band/
+    Internet Archive   archive.org/details/WorldClassMarches
+    Wikimedia Commons  commons.wikimedia.org
+
+  Note: works of the US federal government are public domain,
+  but a specific RECORDING can carry its own copyright even
+  when the underlying composition does not. Wikimedia is the
+  safest source because every file states its licence.
+
+================================================================
