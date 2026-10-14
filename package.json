@@ -1,13 +1,14 @@
 {
   "name": "hormuz-fleet-command",
-  "version": "0.2.0",
+  "version": "0.14.0",
   "description": "Hormuz - Fleet Command",
   "main": "main.js",
   "scripts": {
     "start": "electron .",
     "build": "electron-builder --win --x64",
     "build-portable": "electron-builder --win portable --x64",
-    "build-folder": "electron-builder --win dir --x64"
+    "build-folder": "electron-builder --win dir --x64",
+    "test": "node tests/smoke-test.js"
   },
   "devDependencies": {
     "electron": "^28.1.0",
