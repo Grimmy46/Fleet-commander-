@@ -4,6 +4,7 @@
 //  a local HTTP server, opens it in headless Chromium and fails if:
 //    - any script error, console error or missing file appears
 //    - WebGL does not start or nothing is drawn
+//    - W / D keys do not reach the simulation
 //    - the fixed-step simulation does not advance, or time
 //      compression is not wired up (exact timing: gameloop.test.mjs)
 //  Screenshot: tests/screenshots/engine-01-test-scene.png
@@ -81,6 +82,20 @@ function serve() {
     check(at1 > 0, 'Simulation does not advance at 1x');
     check(ratio > 3, `Time compression not working (15x ran only ${ratio.toFixed(1)}x faster than 1x)`);
     await page.evaluate(() => window.__engine.setTimeScale(1));
+
+    // Controls reach the simulation: W orders more speed, D turns
+    const before = await page.evaluate(() => window.__engine.world().entities[0].phys);
+    await page.keyboard.press('w');
+    await page.keyboard.press('d');
+    await page.evaluate(() => window.__engine.setTimeScale(15));
+    await page.waitForTimeout(2000);
+    await page.evaluate(() => window.__engine.setTimeScale(1));
+    const after = await page.evaluate(() => window.__engine.world().entities[0].phys);
+    console.log(`Controls: ordered speed ${before.ordSpeed} → ${after.ordSpeed} kts, ` +
+      `ordered heading ${before.ordHdg}° → ${after.ordHdg}°`);
+    check(after.ordSpeed === before.ordSpeed + 5, 'W did not raise ordered speed by 5 knots');
+    check(Math.abs(after.ordHdg - ((before.ordHdg + 15) % 360)) < 1e-9, 'D did not turn ordered heading by 15°');
+    check(Math.hypot(after.x - before.x, after.y - before.y) > 0, 'Ship did not move');
   }
 
   await page.waitForTimeout(500);

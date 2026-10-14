@@ -33,7 +33,9 @@ setInterval(() => {
   statsEl.innerHTML =
     `${fps.toFixed(0)} fps · ${s.webgl} · three r${REVISION}<br>` +
     `sim ${s.simTime.toFixed(1)} s · ${s.ticks} ticks @ 60 Hz · ${s.timeScale}x<br>` +
-    `${s.drawCalls} draws · ${(s.triangles / 1000).toFixed(1)}k tris · dpr ${s.pixelRatio.toFixed(2)}`;
+    `${s.drawCalls} draws · ${(s.triangles / 1000).toFixed(1)}k tris · dpr ${s.pixelRatio.toFixed(2)}<br>` +
+    `${engine.scene.status ? engine.scene.status() : ''}<br>` +
+    `W/S speed · A/D heading · 1–5 time · F3 hide`;
 }, 500);
 
 // Time controls carried over from 0.14: 1 pause · 2 1x · 3 4x · 4 15x · 5 60x
@@ -47,5 +49,6 @@ window.addEventListener('keydown', (e) => {
 window.__engine = {
   ready: true,
   stats: () => engine.stats(),
-  setTimeScale: (v) => { engine.loop.timeScale = v; }
+  setTimeScale: (v) => { engine.loop.timeScale = v; },
+  world: () => engine.scene.world && engine.scene.world.snapshot()
 };

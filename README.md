@@ -41,7 +41,9 @@ Install [Node.js](https://nodejs.org) (LTS), then:
 
 | Path | Contents |
 |---|---|
-| `src/` | New engine (Three.js + Vite): `engine/` core, `scenes/` game scenes |
+| `src/sim/` | Simulation: game rules and physics, no graphics. Runs in tests far faster than real time and saves to JSON |
+| `src/render/` | Renderer: draws the simulation with Three.js, never changes it |
+| `src/engine/`, `src/scenes/` | Game loop and scenes that connect the simulation, renderer and input |
 | `electron/main.js` | Electron entry point for both engines |
 | `game.html`, `js/`, `assets/` | Legacy 0.14 game, kept playable until the new engine replaces it |
 | `tests/` | Automated smoke tests for both engines |
