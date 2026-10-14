@@ -28,4 +28,23 @@ Pull requests get the test and build (downloadable from the Actions run page) wi
 
 ## Running from source
 
-Install [Node.js](https://nodejs.org) (LTS), then double-click `Play Hormuz.bat` or run `npm install` and `npm start`. See `README.txt` for controls and full details.
+Install [Node.js](https://nodejs.org) (LTS), then:
+
+| Command | What it runs |
+|---|---|
+| `Play Hormuz.bat` or `npm start` | The new 3D engine (0.20, in progress) with live reload: save a file in `src/` and the game updates instantly |
+| `Play Legacy 0.14.bat` or `npm run legacy` | The old 0.14 canvas game |
+| `npm run preview` | The new engine from built files, exactly as the installer runs it |
+| `npm run build` | Windows installer in `dist/` |
+
+## Project layout
+
+| Path | Contents |
+|---|---|
+| `src/` | New engine (Three.js + Vite): `engine/` core, `scenes/` game scenes |
+| `electron/main.js` | Electron entry point for both engines |
+| `game.html`, `js/`, `assets/` | Legacy 0.14 game, kept playable until the new engine replaces it |
+| `tests/` | Automated smoke tests for both engines |
+| `docs/DESIGN.md` | Design doc |
+
+See `README.txt` for 0.14 controls and details.
