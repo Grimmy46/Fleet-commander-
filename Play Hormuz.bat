@@ -9,11 +9,9 @@ if errorlevel 1 (
     pause
     exit /b
 )
-if not exist "node_modules\" (
-    echo.
-    echo   First-time setup. This takes 1-2 minutes, once only.
-    echo.
-    call npm install
-)
+REM Always sync dependencies: quick when nothing changed, and it
+REM upgrades old installs (0.14 used an older Electron).
+echo   Checking dependencies...
+call npm install --no-audit --no-fund --loglevel=error
 start "" /b cmd /c "npm start"
 exit

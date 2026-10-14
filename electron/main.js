@@ -1,5 +1,20 @@
+// ═══════════════════════════════════════════════════════════════
+//  ELECTRON ENTRY — opens the game window
+//
+//  Three ways to run:
+//    npm start          new engine, live Vite dev server with hot reload
+//    npm run preview    new engine, built files (same as the installer)
+//    npm run legacy     the old 0.14 canvas game (game.html + js/)
+//
+//  The installed app always runs the built new engine. Start it
+//  with --legacy to get the 0.14 game.
+// ═══════════════════════════════════════════════════════════════
 const { app, BrowserWindow, screen } = require('electron');
 const path = require('path');
+
+const ROOT = path.join(__dirname, '..');
+const LEGACY = process.argv.includes('--legacy');
+const PROD = app.isPackaged || process.argv.includes('--prod');
 
 // GPU acceleration, but KEEP vsync. Disabling the frame-rate
 // limit makes Chromium render uncapped into a queue it cannot
@@ -11,17 +26,42 @@ app.commandLine.appendSwitch('ignore-gpu-blocklist');
 app.commandLine.appendSwitch('canvas-oop-rasterization');
 
 let win;
+let devServer = null;
+
+// Starts Vite inside the Electron process so `npm start` is a
+// single command: no second terminal, no extra tools.
+async function startDevServer() {
+  const { createServer } = await import('vite');
+  devServer = await createServer({
+    configFile: path.join(ROOT, 'vite.config.mjs'),
+    server: { port: 5173, strictPort: false }
+  });
+  await devServer.listen();
+  return devServer.resolvedUrls.local[0];
+}
+
+async function loadContent() {
+  if (LEGACY) return win.loadFile(path.join(ROOT, 'game.html'));
+  if (PROD) return win.loadFile(path.join(ROOT, 'out', 'renderer', 'index.html'));
+  try {
+    const url = await startDevServer();
+    console.log('[dev] Vite dev server at ' + url);
+    return win.loadURL(url);
+  } catch (e) {
+    console.error('[dev] Could not start Vite, loading built files instead:', e.message);
+    return win.loadFile(path.join(ROOT, 'out', 'renderer', 'index.html'));
+  }
+}
 
 function createWindow() {
-  const display = screen.getPrimaryDisplay();
-  const { width, height } = display.workAreaSize;
+  const { width, height } = screen.getPrimaryDisplay().workAreaSize;
 
   win = new BrowserWindow({
     width: Math.min(1920, width),
     height: Math.min(1080, height),
     minWidth: 1024,
     minHeight: 700,
-    title: 'Fleet Command — Deep Water',
+    title: LEGACY ? 'Fleet Command — Deep Water (0.14)' : 'Fleet Command',
     backgroundColor: '#04080f',
     autoHideMenuBar: true,
     show: false,
@@ -32,7 +72,7 @@ function createWindow() {
     }
   });
 
-  win.loadFile('game.html');
+  loadContent();
 
   // Go fullscreen AFTER the window exists and content is ready.
   // Creating a window with frame:false + fullscreen:true together
@@ -52,8 +92,10 @@ function createWindow() {
   win.webContents.on('did-fail-load', (e, code, desc) => {
     console.error('LOAD FAILED:', code, desc);
   });
-  win.webContents.on('console-message', (e, level, message, line, sourceId) => {
-    if (level >= 2) console.error(`[renderer] ${message}  (${sourceId}:${line})`);
+  win.webContents.on('console-message', (e) => {
+    if (e.level === 'error' || e.level === 'warning') {
+      console.error(`[renderer] ${e.message}  (${e.sourceId}:${e.lineNumber})`);
+    }
   });
 
   win.webContents.on('before-input-event', (e, input) => {
@@ -79,5 +121,6 @@ app.whenReady().then(() => {
 });
 
 app.on('window-all-closed', () => {
+  if (devServer) devServer.close();
   if (process.platform !== 'darwin') app.quit();
 });
