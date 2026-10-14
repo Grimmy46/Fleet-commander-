@@ -2,6 +2,10 @@
 
 Real-time naval command simulation set in the Strait of Hormuz.
 
+## Where the game is going
+
+See the [design doc](docs/DESIGN.md) and the [milestones](https://github.com/Grimmy46/Fleet-commander-/milestones) for the plan.
+
 ## Download the latest test build
 
 Every push to `main` is tested and built automatically.
