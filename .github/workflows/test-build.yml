@@ -33,6 +33,7 @@ jobs:
           node tests/sim.test.mjs
           node tests/gameloop.test.mjs
           node tests/render.test.mjs
+          node tests/camera.test.mjs
       - name: Build new engine
         run: npm run build:renderer
       - name: Install headless browser

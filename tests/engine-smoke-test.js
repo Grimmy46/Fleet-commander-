@@ -4,7 +4,8 @@
 //  a local HTTP server, opens it in headless Chromium and fails if:
 //    - any script error, console error or missing file appears
 //    - WebGL does not start or nothing is drawn
-//    - W / D keys do not reach the simulation
+//    - I / L keys do not reach the simulation
+//    - wheel zoom, WASD pan or Space follow do not work
 //    - the fixed-step simulation does not advance, or time
 //      compression is not wired up (exact timing: gameloop.test.mjs)
 //  Screenshot: tests/screenshots/engine-01-test-scene.png
@@ -83,19 +84,52 @@ function serve() {
     check(ratio > 3, `Time compression not working (15x ran only ${ratio.toFixed(1)}x faster than 1x)`);
     await page.evaluate(() => window.__engine.setTimeScale(1));
 
-    // Controls reach the simulation: W orders more speed, D turns
+    // Ship controls reach the simulation: I orders more speed, L turns
     const before = await page.evaluate(() => window.__engine.world().entities[0].phys);
-    await page.keyboard.press('w');
-    await page.keyboard.press('d');
+    await page.keyboard.press('i');
+    await page.keyboard.press('l');
     await page.evaluate(() => window.__engine.setTimeScale(15));
     await page.waitForTimeout(2000);
     await page.evaluate(() => window.__engine.setTimeScale(1));
     const after = await page.evaluate(() => window.__engine.world().entities[0].phys);
     console.log(`Controls: ordered speed ${before.ordSpeed} → ${after.ordSpeed} kts, ` +
       `ordered heading ${before.ordHdg}° → ${after.ordHdg}°`);
-    check(after.ordSpeed === before.ordSpeed + 5, 'W did not raise ordered speed by 5 knots');
-    check(Math.abs(after.ordHdg - ((before.ordHdg + 15) % 360)) < 1e-9, 'D did not turn ordered heading by 15°');
+    check(after.ordSpeed === before.ordSpeed + 5, 'I did not raise ordered speed by 5 knots');
+    check(Math.abs(after.ordHdg - ((before.ordHdg + 15) % 360)) < 1e-9, 'L did not turn ordered heading by 15°');
     check(Math.hypot(after.x - before.x, after.y - before.y) > 0, 'Ship did not move');
+
+    // Camera: zoom in close, then all the way out, then pan and re-follow
+    const cam = () => page.evaluate(() => window.__engine.camera());
+    const c0 = await cam();
+    check(c0.following, 'Camera should start following the ship');
+    await page.mouse.move(800, 450);
+    for (let i = 0; i < 8; i++) await page.mouse.wheel(0, -100);
+    await page.waitForTimeout(2500);
+    const cClose = await cam();
+    await page.screenshot({ path: path.join(OUT, 'engine-02-zoom-close.png') });
+    for (let i = 0; i < 40; i++) await page.mouse.wheel(0, 100);
+    await page.waitForTimeout(3000);
+    const cFar = await cam();
+    await page.screenshot({ path: path.join(OUT, 'engine-03-zoom-far.png') });
+    console.log(`Camera zoom: start ${c0.dist.toFixed(0)} m, close ${cClose.dist.toFixed(0)} m, far ${cFar.dist.toFixed(0)} m`);
+    check(cClose.dist < c0.dist * 0.5, 'Wheel up did not zoom in');
+    check(cFar.dist > 50000, 'Wheel down did not zoom out to the tactical view');
+    check(cFar.pitchDeg > 75, 'Camera should look nearly straight down when zoomed out');
+
+    for (let i = 0; i < 30; i++) await page.mouse.wheel(0, -100);
+    await page.waitForTimeout(2000);
+    const cMid0 = await cam();
+    await page.keyboard.down('KeyD');
+    await page.waitForTimeout(1500);
+    await page.keyboard.up('KeyD');
+    await page.waitForTimeout(800);
+    const cPan = await cam();
+    console.log(`Camera pan: following ${cMid0.following} → ${cPan.following}, moved ${Math.hypot(cPan.x - cMid0.x, cPan.z - cMid0.z).toFixed(0)} m`);
+    check(!cPan.following, 'Panning should stop following the ship');
+    check(Math.hypot(cPan.x - cMid0.x, cPan.z - cMid0.z) > 50, 'D did not pan the camera');
+    await page.keyboard.press('Space');
+    await page.waitForTimeout(800);
+    check((await cam()).following, 'Space did not return the camera to the ship');
   }
 
   await page.waitForTimeout(500);

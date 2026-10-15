@@ -6,18 +6,19 @@ import * as THREE from 'three';
 import { Sky } from 'three/addons/objects/Sky.js';
 import { makeWaterNormalTexture } from './waterNormals.js';
 
-const OCEAN_SIZE = 80000;     // metres
-const OCEAN_REPEAT = 450;     // normal-map tiles across the ocean
+const OCEAN_SIZE = 400000;    // metres: covers the view at maximum zoom
+const OCEAN_REPEAT = 2250;    // normal-map tiles across the ocean (~178 m each)
+const FOG_BASE = 0.00011;
 const TILE = OCEAN_SIZE / OCEAN_REPEAT;
 
 export class Environment {
   constructor(renderer, root) {
     this.root = root;
-    root.fog = new THREE.FogExp2(0x9fb4c8, 0.00011);
+    root.fog = new THREE.FogExp2(0x9fb4c8, FOG_BASE);
 
     // Sky, late-afternoon sun low in the south-west
     const sky = new Sky();
-    sky.scale.setScalar(45000);
+    sky.scale.setScalar(50000);       // must stay inside camera.far (≥ 60 km)
     const u = sky.material.uniforms;
     u.turbidity.value = 6;
     u.rayleigh.value = 1.6;
@@ -61,11 +62,16 @@ export class Environment {
     root.add(this.ocean);
   }
 
-  /** Keep ocean, sky and shadows centred on the point of interest (metres). */
-  update(focusX, focusZ, t) {
+  /**
+   * Keep ocean and shadows centred on the camera focus (metres),
+   * the sky around the camera, and thin the fog as the camera
+   * zooms out so the tactical view stays clear.
+   */
+  update(focusX, focusZ, t, camera, camDist) {
     // Snap the ocean to whole texture tiles so the pattern doesn't slide
     this.ocean.position.set(Math.round(focusX / TILE) * TILE, 0, Math.round(focusZ / TILE) * TILE);
-    this.sky.position.set(focusX, 0, focusZ);
+    this.sky.position.copy(camera.position);
+    this.root.fog.density = FOG_BASE * THREE.MathUtils.clamp(1500 / camDist, 0.02, 1);
     this.waterNormals.offset.set(t * 0.004, t * 0.0025);
 
     this.sun.position.set(focusX, 0, focusZ).addScaledVector(this.sunDir, 2000);
