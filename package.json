@@ -11,7 +11,7 @@
     "build": "vite build && electron-builder --win --x64",
     "build-portable": "vite build && electron-builder --win portable --x64",
     "build-folder": "vite build && electron-builder --win dir --x64",
-    "test": "node tests/sim.test.mjs && node tests/gameloop.test.mjs && node tests/render.test.mjs && node tests/smoke-test.js && node tests/engine-smoke-test.js"
+    "test": "node tests/sim.test.mjs && node tests/gameloop.test.mjs && node tests/render.test.mjs && node tests/camera.test.mjs && node tests/smoke-test.js && node tests/engine-smoke-test.js"
   },
   "devDependencies": {
     "electron": "^44.7.2",
